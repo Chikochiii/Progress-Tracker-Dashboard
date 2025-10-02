@@ -2,15 +2,14 @@ let pieChartInstance = null;
 let barChartInstance = null;
 let lineChartInstance = null;
 
-// PALET WARNA CERAH DAN VIBRANT untuk Pie/Bar Charts
 const VIBRANT_COLORS = [
-    '#FF6384', // Merah Muda Cerah
-    '#36A2EB', // Biru Langit Cerah
-    '#FFCD56', // Kuning Cerah
-    '#4BC0C0', // Cyan/Aqua Cerah
-    '#9966FF', // Ungu Terang
-    '#FF9F40', // Oranye Cerah
-    '#22C55E', // Hijau Neon
+    '#FF6384',
+    '#36A2EB', 
+    '#FFCD56', 
+    '#4BC0C0', 
+    '#9966FF', 
+    '#FF9F40', 
+    '#22C55E', 
     '#F97316', 
     '#EC4899', 
     '#3B82F6'  
@@ -18,7 +17,6 @@ const VIBRANT_COLORS = [
 const COLOR_MAP = {};
 let colorIndex = 0;
 
-// Fungsi untuk membuat warna konsisten menggunakan palet cerah yang telah ditentukan
 function getSubjectColor(subject) {
     if (!COLOR_MAP[subject]) {
         COLOR_MAP[subject] = VIBRANT_COLORS[colorIndex % VIBRANT_COLORS.length];
@@ -27,21 +25,14 @@ function getSubjectColor(subject) {
     return COLOR_MAP[subject];
 }
 
-// Helper untuk safely destroy old chart instances
 function destroyChart(instance) {
     if (instance) {
         instance.destroy();
     }
 }
 
-/**
- * Renders all charts (Pie, Bar, Line) based on the provided study data.
- * Dipanggil dari app.js setiap kali data diperbarui.
- * @param {Array<Object>} studies - Array of study records.
- */
 function renderCharts(studies) {
     
-    // --- 1. Data Aggregation and Preparation ---
     if (!studies || studies.length === 0) {
         destroyChart(pieChartInstance);
         destroyChart(barChartInstance);
@@ -49,7 +40,6 @@ function renderCharts(studies) {
         return; 
     }
 
-    // Agregasi Durasi per Subjek untuk Pie/Bar Charts
     const aggregatedBySubject = studies.reduce((acc, study) => {
         const subject = study.subject;
         acc[subject] = (acc[subject] || 0) + study.duration;
@@ -60,7 +50,6 @@ function renderCharts(studies) {
     const chartData = Object.values(aggregatedBySubject);
     const chartColors = chartLabels.map(getSubjectColor);
 
-    // Agregasi Durasi per Hari untuk Line Chart
     const aggregatedByDay = studies.reduce((acc, study) => {
         const date = study.date; 
         acc[date] = (acc[date] || 0) + study.duration;
@@ -72,7 +61,6 @@ function renderCharts(studies) {
         y: aggregatedByDay[date]
     }));
 
-    // Determine Theme Colors
     const isDark = document.body.classList.contains("dark");
     const gridColor = isDark ? '#374151' : '#E5E7EB';
     const textColor = isDark ? '#E5E7EB' : '#4B5563';
@@ -80,9 +68,7 @@ function renderCharts(studies) {
     const tooltipText = isDark ? '#E5E7EB' : '#1F2937';
 
 
-    // =======================================================
-    // 2. PIE CHART (Time Distribution by Activity)
-    // =======================================================
+    // PIE CHART
     const ctxPie = document.getElementById('pieChart');
     destroyChart(pieChartInstance);
 
@@ -124,9 +110,7 @@ function renderCharts(studies) {
     });
 
 
-    // =======================================================
-    // 3. BAR CHART (Total Duration Per Activity)
-    // =======================================================
+    // BAR CHART
     const ctxBar = document.getElementById('barChart');
     destroyChart(barChartInstance);
 
@@ -137,7 +121,6 @@ function renderCharts(studies) {
             datasets: [{
                 label: 'Duration (min)',
                 data: chartData,
-                // Menggunakan chartColors yang cerah dengan sedikit transparansi
                 backgroundColor: chartColors.map(color => color + 'E0'), 
                 borderColor: chartColors, 
                 borderWidth: 1
@@ -146,7 +129,7 @@ function renderCharts(studies) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            indexAxis: 'y', // Horizontal bars
+            indexAxis: 'y',
             scales: {
                 x: {
                     beginAtZero: true,
@@ -171,9 +154,7 @@ function renderCharts(studies) {
     });
 
 
-    // =======================================================
-    // 4. LINE CHART (Activity Duration Over Time)
-    // =======================================================
+    // LINE CHART
     const ctxLine = document.getElementById('lineChart');
     destroyChart(lineChartInstance);
     
@@ -184,8 +165,8 @@ function renderCharts(studies) {
                 datasets: [{
                     label: 'Total Activity per Day (min)',
                     data: lineChartDataPoints,
-                    borderColor: '#4F46E5', // Warna primer
-                    backgroundColor: '#4F46E533', // Area di bawah garis
+                    borderColor: '#4F46E5',
+                    backgroundColor: '#4F46E533',
                     tension: 0.3,
                     fill: true,
                     pointRadius: 5,
@@ -226,7 +207,7 @@ function renderCharts(studies) {
                         },
                         ticks: { 
                             color: textColor,
-                            stepSize: 50, // Scaling yang bersih
+                            stepSize: 50,
                             callback: function(value) {
                                  return value + ' min';
                             }
